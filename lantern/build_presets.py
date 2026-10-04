@@ -12,11 +12,12 @@ USAGE = {"show_remaining": True, "five_hour": "ring power", "seven_day": "lanter
          "cost_suffix": "willpower spent"}
 LABELS = {"model": "corps: ", "dir": "sector: "}
 
-# 3-row emblems rasterized with quarter blocks (2x2 sub-pixels per cell) so
-# the ring's corners round off; see emblem.py for the generator.
-HAL_ART = ["▀▀▀▜█▀▀█▛▀▀▀", "   █▌  ▐█   ", "▄▄▄▟█▄▄█▙▄▄▄"]
-JOHN_ART = ["▀▀▀▜█▀▀█▛▀▀▀", "   █▌▐▌▐█   ", "▄▄▄▟█▄▄█▙▄▄▄"]  # solid core
-GUY_ART = ["▀▀▀▀█▀▀▀█▀▀▀▀", "   ▐▌ G ▐▌   ", "▄▄▄▄█▄▄▄█▄▄▄▄"]  # his G
+# 4-row emblems rasterized with quarter blocks (2x2 sub-pixels per cell) so
+# the ring comes out round; emblem.py generates the ring, and each Lantern
+# changes only its inside.
+HAL_ART = ["▀▀▀▀▀██████▀▀▀▀▀", "    ▟▛    ▜▙    ", "    ▜▙    ▟▛    ", "▄▄▄▄▄██████▄▄▄▄▄"]
+JOHN_ART = ["▀▀▀▀▀██████▀▀▀▀▀", "    ▟▛ ▄▄ ▜▙    ", "    ▜▙ ▀▀ ▟▛    ", "▄▄▄▄▄██████▄▄▄▄▄"]  # solid core
+GUY_ART = ["▀▀▀▀▀██████▀▀▀▀▀", "    ▟▛ ▛▀ ▜▙    ", "    ▜▙ ▙█ ▟▛    ", "▄▄▄▄▄██████▄▄▄▄▄"]  # his G
 
 ANNOUNCEMENT = ("In brightest day, in blackest night, no evil shall escape my sight."
                 " ~ If you can will it, create it.")

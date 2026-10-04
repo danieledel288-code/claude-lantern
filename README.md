@@ -4,14 +4,15 @@ A Green Lantern theme for [Claude Code](https://code.claude.com). Pick your Lant
 
 - **Color theme**: spinner, mascot, prompt border and accents in your Lantern's color
 - **Spinner words**: Hal is "Flying by the seat of my pants…", John is "Building it bolt by bolt…", Guy is "Out-yelling Hal…"
-- **Statusline**: a 3-row HUD with the emblem in the corner. Plan usage reads as `ring power` (5-hour window) and `lantern battery` (weekly), counting down.
+- **Statusline**: a 4-row HUD with the emblem in the corner. Plan usage reads as `ring power` (5-hour window) and `lantern battery` (weekly), counting down.
 - **Dot wave**: an animated grid of dots above the spinner while Claude works
 - **Welcome oath**: *In brightest day, in blackest night, no evil shall escape my sight.*
 
 ```
-💥 full throttle, no fear                       ▀▀▀▜█▀▀█▛▀▀▀
-corps: Opus 5.5  │  sector: my-project             █▌  ▐█
-ring power 69%  │  lantern battery 94%          ▄▄▄▟█▄▄█▙▄▄▄
+💥 full throttle, no fear              ▀▀▀▀▀██████▀▀▀▀▀
+corps: Opus 5.5                            ▟▛    ▜▙
+sector: my-project                         ▜▙    ▟▛
+ring power 69%  │  lantern battery 94%  ▄▄▄▄▄██████▄▄▄▄▄
 ```
 
 | Preset | Ring | Color |

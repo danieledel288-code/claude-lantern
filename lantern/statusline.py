@@ -227,8 +227,12 @@ def main():
 
     art = theme.get("corner_art")
     if art:
-        # Three compact rows: status, where/who, how much ring is left.
-        rows = [mood, f"{model_part}{sep}{dir_part}", sep.join(usage_parts)]
+        # One row per art row: status, who, where, how much ring is left
+        # (who and where share a row when the art is only 3 tall).
+        if len(art) >= 4:
+            rows = [mood, model_part, dir_part, sep.join(usage_parts)]
+        else:
+            rows = [mood, f"{model_part}{sep}{dir_part}", sep.join(usage_parts)]
         hud = hud_with_art(rows, art, text, reset)
         if hud:
             line = hud
