@@ -5,7 +5,8 @@ A Green Lantern theme for [Claude Code](https://code.claude.com). Pick your Lant
 - **Color theme**: spinner, mascot, prompt border and accents in your Lantern's color
 - **Spinner words**: Hal is "Flying by the seat of my pants…", John is "Building it bolt by bolt…", Guy is "Out-yelling Hal…"
 - **Statusline**: the emblem on the left with a 4-row HUD beside it. Plan usage shows as charge bars: `ring` (5-hour window) and `lantern` (weekly), counting down.
-- **Dot wave**: an animated grid of dots above the spinner while Claude works
+- **Constructs**: while Claude works, a beam fires from your ring and builds a construct above the spinner (the emblem, a cube, a bridge, a hammer, a car, a bottle opener, and one rude hand), which holds and then dissolves into sparks
+- **Your Lantern's name** on the right of the statusline
 - **Welcome oath**: *In brightest day, in blackest night, no evil shall escape my sight.*
 
 ```
@@ -27,11 +28,11 @@ A Green Lantern theme for [Claude Code](https://code.claude.com). Pick your Lant
 Needs Python 3 and a recent Claude Code (custom themes and plugin hooks are newer features).
 
 ```sh
-git clone <this repo> && cd claude-lantern
+git clone https://github.com/danieledel288-code/claude-lantern && cd claude-lantern
 python install.py          # or: python install.py john
 ```
 
-Then restart `claude`. Switch any time with `/preset hal`, `/preset john`, `/preset guy` or `/preset default`.
+On macOS/Linux use `python3` if `python` isn't on your PATH. Then restart `claude`. Switch any time with `/preset hal`, `/preset john`, `/preset guy` or `/preset default`.
 
 `install.py` backs up `~/.claude/settings.json` before touching it, and `python install.py --uninstall` restores that backup.
 
