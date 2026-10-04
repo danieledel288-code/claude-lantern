@@ -65,30 +65,27 @@ def visible_width(text):
     return width
 
 
-def hud_with_art(segments, art, color, reset):
-    # HUD layout: one segment per row on the left, art right-aligned on the
-    # same rows. Every row starts with text, so nothing depends on leading
-    # whitespace surviving. COLUMNS is set by Claude Code (stdout is a pipe,
-    # so tput/get_terminal_size can't see the terminal). Returns None when
-    # the terminal is too narrow, and the caller falls back to one line.
-    try:
-        cols = int(os.environ.get("COLUMNS", ""))
-    except ValueError:
-        return None
-    # Blank rows start with a braille blank (U+2800), not a space, so the
-    # row never begins with whitespace that could be trimmed.
-    rows = list(segments) + ["⠀"] * (len(art) - len(segments))
+BLANK = "\u2800"  # braille blank: looks like a space but is never trimmed
+
+
+def ring_left(art, rows, color, reset):
+    # The emblem sits on the left like a logo with one info row beside each
+    # art row. Leading spaces in the art become braille blanks so a row never
+    # starts with whitespace that could be trimmed. No terminal width needed.
+    rows = list(rows) + [""] * (len(art) - len(rows))
     art_width = max(visible_width(a) for a in art)
-    right_margin = 4  # Claude Code indents the row; leave room so it never wraps
-    text_width = max(visible_width(r) for r in rows)
-    art_col = cols - right_margin - art_width
-    if art_col - text_width < 3:
-        return None
     out = []
-    for row, art_row in zip(rows, art):
-        pad = " " * (art_col - visible_width(row))
-        out.append(f"{color}{row}{pad}{art_row}{reset}")
+    for art_row, row in zip(art, rows):
+        stripped = art_row.lstrip(" ")
+        art_cell = BLANK * (len(art_row) - len(stripped)) + stripped
+        pad = " " * (art_width - visible_width(art_row) + 3)
+        out.append(f"{color}{art_cell}{reset}{pad}{row}")
     return "\n".join(out)
+
+
+def charge_bar(pct, width=10):
+    filled = max(0, min(width, round(pct / 100 * width)))
+    return "\u25b0" * filled + "\u25b1" * (width - filled)
 
 
 def safe_git_branch(cwd):
@@ -155,7 +152,7 @@ def with_cached_rate_limits(rate_limits):
     return fresh or None
 
 
-def format_usage(labels, rate_limits, cost_usd):
+def format_usage(labels, rate_limits, cost_usd, paint=None):
     # Real plan-quota % (5h session window, 7-day window) when Claude Code
     # exposes it. Falls back to the notional $ cost figure on older Claude
     # Code versions or the known Max/OAuth bug where rate_limits is absent
@@ -171,7 +168,10 @@ def format_usage(labels, rate_limits, cost_usd):
         if isinstance(used, (int, float)):
             # Some themes show what's left (ring power) instead of what's used.
             pct = max(0, 100 - used) if labels["show_remaining"] else used
-            parts.append(f"{label} {pct:.0f}%")
+            if paint:
+                parts.append(paint(label, f"{charge_bar(pct)} {pct:.0f}%"))
+            else:
+                parts.append(f"{label} {pct:.0f}%")
 
     if parts:
         return parts
@@ -214,6 +214,7 @@ def main():
 
     labels = theme["labels"]
     model_part = f"{labels.get('model', '')}{model_name}"
+    dir_part_plain = dir_part
     dir_part = f"{labels.get('dir', '')}{dir_part}"
 
     colors = theme.get("colors")
@@ -227,15 +228,21 @@ def main():
 
     art = theme.get("corner_art")
     if art:
-        # One row per art row: status, who, where, how much ring is left
-        # (who and where share a row when the art is only 3 tall).
-        if len(art) >= 4:
-            rows = [mood, model_part, dir_part, sep.join(usage_parts)]
-        else:
-            rows = [mood, f"{model_part}{sep}{dir_part}", sep.join(usage_parts)]
-        hud = hud_with_art(rows, art, text, reset)
-        if hud:
-            line = hud
+        dim = f"\033[{colors['separator']}m" if colors else ""
+
+        def paint(label, value):
+            return f"{dim}{label}{reset} {text}{value}{reset}"
+
+        names = [labels.get("model", "").strip(" :") or "model", labels.get("dir", "").strip(" :") or "dir"]
+        width = max(len(n) for n in names)
+        bars = format_usage(theme["usage"], with_cached_rate_limits(data.get("rate_limits")), cost_usd, paint)
+        rows = [
+            f"{text}{mood}{reset}",
+            paint(names[0].ljust(width), model_name),
+            paint(names[1].ljust(width), dir_part_plain),
+            "  ".join(bars),
+        ]
+        line = ring_left(art, rows, text, reset)
     print(line)
 
 

@@ -35,8 +35,8 @@
   },
   "usage": {
     "show_remaining": true,
-    "five_hour": "ring power",
-    "seven_day": "lantern battery",
+    "five_hour": "ring",
+    "seven_day": "lantern",
     "cost_suffix": "willpower spent"
   },
   "labels": {

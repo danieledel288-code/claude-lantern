@@ -8,7 +8,7 @@ import os
 HERE = os.path.dirname(os.path.abspath(__file__))
 PRESETS = os.path.join(HERE, "presets")
 CC_THEMES = os.path.join(HERE, "cc-themes")
-USAGE = {"show_remaining": True, "five_hour": "ring power", "seven_day": "lantern battery",
+USAGE = {"show_remaining": True, "five_hour": "ring", "seven_day": "lantern",
          "cost_suffix": "willpower spent"}
 LABELS = {"model": "corps: ", "dir": "sector: "}
 
