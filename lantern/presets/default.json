@@ -1,0 +1,21 @@
+{
+  "description": "Original look: pet mood emoji, plain colors, used-% quota",
+  "cliTheme": "dark",
+  "spinnerVerbs": null,
+  "colors": null,
+  "moods": {
+    "critical": "🥴 exhausted, /handoff soon",
+    "warning": "😵 losing attention",
+    "starting": "🐾 waking up",
+    "blasting": "🔥 on fire",
+    "busy": "😀 vibing",
+    "working": "🙂 working",
+    "idle": "💤 idle"
+  },
+  "usage": {
+    "show_remaining": false,
+    "five_hour": "5h",
+    "seven_day": "wk",
+    "cost_suffix": "session"
+  }
+}

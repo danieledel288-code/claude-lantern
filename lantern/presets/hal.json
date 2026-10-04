@@ -1,0 +1,52 @@
+{
+  "description": "Hal Jordan: fearless test pilot, classic ring, emerald with a turquoise edge",
+  "cliTheme": "custom:hal",
+  "spinnerVerbs": [
+    "Flying by the seat of my pants",
+    "Ignoring the Guardians",
+    "Going full throttle",
+    "Test-piloting",
+    "Pulling a barrel roll",
+    "Overcoming great fear",
+    "Breaking protocol",
+    "Pushing past Mach 3",
+    "Charging the ring",
+    "Reciting the oath",
+    "Winging it",
+    "Patrolling Sector 2814"
+  ],
+  "colors": {
+    "text": "38;5;48",
+    "separator": "38;5;29"
+  },
+  "wave": [
+    26,
+    255,
+    140
+  ],
+  "moods": {
+    "critical": "🚨 running on fumes, back to the lantern (/handoff)",
+    "warning": "⚠️ constructs flickering",
+    "starting": "💍 suiting up",
+    "blasting": "💥 full throttle, no fear",
+    "busy": "✈️ flying on instinct",
+    "working": "✨ winging it",
+    "idle": "🌌 patrolling sector 2814"
+  },
+  "usage": {
+    "show_remaining": true,
+    "five_hour": "ring power",
+    "seven_day": "lantern battery",
+    "cost_suffix": "willpower spent"
+  },
+  "labels": {
+    "model": "corps: ",
+    "dir": "sector: "
+  },
+  "corner_art": [
+    "▀▀▀▜█▀▀█▛▀▀▀",
+    "   █▌  ▐█   ",
+    "▄▄▄▟█▄▄█▙▄▄▄"
+  ],
+  "announcement": "In brightest day, in blackest night, no evil shall escape my sight. ~ If you can will it, create it."
+}

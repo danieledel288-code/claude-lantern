@@ -1,0 +1,4 @@
+__pycache__/
+lantern/active
+.claude-plugin/types/
+tsconfig.json

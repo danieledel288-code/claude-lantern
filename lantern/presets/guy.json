@@ -1,0 +1,52 @@
+{
+  "description": "Guy Gardner: loudmouth ex-sergeant, G-marked ring, acid lime",
+  "cliTheme": "custom:guy",
+  "spinnerVerbs": [
+    "Mouthing off",
+    "Picking a fight",
+    "Throwing a construct punch",
+    "Being the best Lantern",
+    "Out-yelling Hal",
+    "Not taking orders",
+    "Busting heads",
+    "Showing the rookies how it's done",
+    "Cracking knuckles",
+    "Ignoring the chain of command",
+    "Flexing",
+    "Running Warriors"
+  ],
+  "colors": {
+    "text": "38;5;118",
+    "separator": "38;5;64"
+  },
+  "wave": [
+    157,
+    255,
+    0
+  ],
+  "moods": {
+    "critical": "🚨 ring's gassed, somebody get me a lantern (/handoff)",
+    "warning": "⚠️ this ring's getting cranky",
+    "starting": "😤 who woke me up",
+    "blasting": "👊 kicking everybody's butt",
+    "busy": "💪 showing Hal how it's done",
+    "working": "🥊 throwing punches",
+    "idle": "🍺 kicking back at Warriors"
+  },
+  "usage": {
+    "show_remaining": true,
+    "five_hour": "ring power",
+    "seven_day": "lantern battery",
+    "cost_suffix": "willpower spent"
+  },
+  "labels": {
+    "model": "corps: ",
+    "dir": "sector: "
+  },
+  "corner_art": [
+    "▀▀▀▀█▀▀▀█▀▀▀▀",
+    "   ▐▌ G ▐▌   ",
+    "▄▄▄▄█▄▄▄█▄▄▄▄"
+  ],
+  "announcement": "In brightest day, in blackest night, no evil shall escape my sight. ~ If you can will it, create it."
+}
