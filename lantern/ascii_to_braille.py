@@ -58,3 +58,23 @@ if __name__ == "__main__":
     sys.stdout.reconfigure(encoding="utf-8")
     for line in to_braille(load(path), rows, threshold):
         print(line)
+
+
+RAMP = " .:-=+*#%"
+
+
+def to_ascii(grid, rows):
+    """Same shrink, but keeping ASCII characters (one per cell)."""
+    src_h, src_w = len(grid), len(grid[0])
+    cols = round(rows * src_w / src_h)  # both are ~1:2 cells, so same aspect
+    out = []
+    for r in range(rows):
+        line = ""
+        for c in range(cols):
+            ya, yb = int(r * src_h / rows), max(int((r + 1) * src_h / rows), int(r * src_h / rows) + 1)
+            xa, xb = int(c * src_w / cols), max(int((c + 1) * src_w / cols), int(c * src_w / cols) + 1)
+            block = [grid[y][x] for y in range(ya, yb) for x in range(xa, xb) if x < len(grid[y])]
+            v = sum(block) / len(block) if block else 0
+            line += RAMP[min(len(RAMP) - 1, int(v * len(RAMP)))]
+        out.append(line)
+    return out

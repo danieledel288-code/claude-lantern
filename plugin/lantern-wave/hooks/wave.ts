@@ -1,69 +1,189 @@
-// Pure frame builder for the dot-wave Raster, kept apart from the hooks so
-// it can be tested without a surface.
+// Pure frame builder for the construct animation, kept apart from the hooks
+// so it can be tested without a surface.
 //
-// Each terminal cell is a braille character: 2x4 sub-dots, so the ripple is
-// drawn at four times the vertical and twice the horizontal resolution of
-// one-glyph-per-cell. Dots switch on where the energy field is strong
-// (ordered dithering for the in-between), and the cell's colour follows the
-// field too, so the ripple has both shape and glow.
+// Like a Lantern building a construct: a beam fires from the left edge (the
+// ring), traces a shape line by line, the shape holds and glows, then
+// dissolves into sparks and the next one is built. Drawn in braille cells
+// (2x4 sub-dots each), so lines are four times finer than one glyph per cell.
 
 export const WAVE_ROWS = 3
 const DEFAULT_BG = 0x01000000
 const BRAILLE = 0x2800
-// Braille dot bits by sub-position [column][row].
 const DOT_BITS = [
   [0x01, 0x02, 0x04, 0x40],
   [0x08, 0x10, 0x20, 0x80],
 ]
-// 2x4 ordered-dither thresholds, so mid-strength areas get an even scatter of
-// dots instead of a hard edge.
-const DITHER = [
-  [0.1, 0.6, 0.35, 0.85],
-  [0.75, 0.25, 0.95, 0.45],
-]
 
 export type Rgb = [number, number, number]
+type Seg = [number, number, number, number] // x0, y0, x1, y1 in shape units (0..1 tall)
+
+const CYCLE = 3.4 // seconds per construct
+const BUILD = 0.45 // fraction of the cycle spent drawing
+const DISSOLVE = 0.8 // fraction at which it starts breaking apart
+
+function circle(cx: number, cy: number, r: number, n = 20): Seg[] {
+  const out: Seg[] = []
+  for (let i = 0; i < n; i++) {
+    const a0 = (i / n) * Math.PI * 2
+    const a1 = ((i + 1) / n) * Math.PI * 2
+    out.push([cx + Math.cos(a0) * r, cy + Math.sin(a0) * r, cx + Math.cos(a1) * r, cy + Math.sin(a1) * r])
+  }
+  return out
+}
+
+function box(x0: number, y0: number, x1: number, y1: number): Seg[] {
+  return [
+    [x0, y0, x1, y0],
+    [x1, y0, x1, y1],
+    [x1, y1, x0, y1],
+    [x0, y1, x0, y0],
+  ]
+}
+
+// Shapes in units where height is 1 and x runs 0..width (aspect from braille
+// dots being square). Each is drawn in order, so the trace order is the
+// segment order.
+const SHAPES: ((w: number) => Seg[])[] = [
+  // The emblem: top bar, ring, bottom bar.
+  (w) => [[w / 2 - 1.1, 0.05, w / 2 + 1.1, 0.05], ...circle(w / 2, 0.5, 0.42), [w / 2 - 1.1, 0.95, w / 2 + 1.1, 0.95]],
+  // A wireframe cube.
+  (w) => {
+    const c = w / 2
+    return [
+      ...box(c - 0.9, 0.3, c + 0.3, 0.95),
+      ...box(c - 0.3, 0.05, c + 0.9, 0.7),
+      [c - 0.9, 0.3, c - 0.3, 0.05],
+      [c + 0.3, 0.3, c + 0.9, 0.05],
+      [c + 0.3, 0.95, c + 0.9, 0.7],
+      [c - 0.9, 0.95, c - 0.3, 0.7],
+    ]
+  },
+  // A suspension bridge across the whole strip.
+  (w) => {
+    const segs: Seg[] = [[0.3, 0.8, w - 0.3, 0.8]]
+    const span = w - 0.6
+    const N = 24
+    for (let i = 0; i < N; i++) {
+      const x0 = 0.3 + (span * i) / N
+      const x1 = 0.3 + (span * (i + 1)) / N
+      const y = (x: number) => 0.15 + 0.55 * ((x - w / 2) / (span / 2)) ** 2
+      segs.push([x0, y(x0), x1, y(x1)])
+      if (i % 3 === 0) segs.push([x0, y(x0), x0, 0.8])
+    }
+    return segs
+  },
+  // A hammer.
+  (w) => {
+    const c = w / 2
+    return [...box(c - 1.2, 0.1, c + 0.4, 0.45), ...box(c - 0.15, 0.45, c + 0.05, 0.95)]
+  },
+]
+
+/** A cheap per-dot hash in 0..1, stable across frames, for sparkle/dissolve. */
+function hash(x: number, y: number, s: number): number {
+  const v = Math.sin(x * 127.1 + y * 311.7 + s * 74.7) * 43758.5453
+  return v - Math.floor(v)
+}
 
 /**
- * Field strength 0..1 at sub-dot (x, y) and time t (seconds): rings of
- * energy pulsing out from the centre (like a ring charging), crossed by a
- * slow travelling swell so it never looks like a static loop.
+ * The lit dots for one frame: Map of "x,y" -> intensity 0..1, in sub-dot
+ * coordinates (width = columns * 2, height = WAVE_ROWS * 4).
  */
-export function brightness(x: number, y: number, t: number, width = 96, height = WAVE_ROWS * 4): number {
-  const dx = x - width / 2
-  const dy = (y - height / 2) * 1.6
-  const dist = Math.hypot(dx, dy)
-  const pulse = Math.sin(dist * 0.32 - t * 6)
-  const swell = Math.sin(x * 0.07 + t * 1.3)
-  const fade = 1 - Math.min(1, dist / (width * 0.62))
-  const v = ((pulse + 1) / 2) * (0.55 + 0.45 * fade) + 0.18 * swell
-  return Math.max(0, Math.min(1, v))
+export function constructFrame(columns: number, t: number): Map<string, number> {
+  const W = columns * 2
+  const H = WAVE_ROWS * 4
+  const unit = H - 1 // shape units -> dots
+  const shapeWidth = W / unit
+  const cycle = Math.floor(t / CYCLE)
+  const phase = (t % CYCLE) / CYCLE
+  const segs = SHAPES[cycle % SHAPES.length](shapeWidth)
+
+  const lengths = segs.map(([x0, y0, x1, y1]) => Math.hypot(x1 - x0, y1 - y0))
+  const total = lengths.reduce((a, b) => a + b, 0)
+  const built = Math.min(1, phase / BUILD) * total
+
+  const lit = new Map<string, number>()
+  const put = (x: number, y: number, v: number) => {
+    const xi = Math.round(x)
+    const yi = Math.round(y)
+    if (xi < 0 || yi < 0 || xi >= W || yi >= H) return
+    const key = `${xi},${yi}`
+    lit.set(key, Math.max(lit.get(key) ?? 0, v))
+  }
+
+  // Trace the shape up to `built` length; remember the pen tip.
+  let run = 0
+  let tip: [number, number] | null = null
+  for (let i = 0; i < segs.length && run < built; i++) {
+    const [x0, y0, x1, y1] = segs[i]
+    const len = lengths[i]
+    const f = Math.min(1, (built - run) / len)
+    const steps = Math.max(1, Math.ceil(len * unit * f * 2))
+    for (let s = 0; s <= steps; s++) {
+      const u = (s / steps) * f
+      put((x0 + (x1 - x0) * u) * unit, (y0 + (y1 - y0) * u) * unit, 0.85)
+    }
+    tip = [(x0 + (x1 - x0) * f) * unit, (y0 + (y1 - y0) * f) * unit]
+    run += len
+  }
+
+  // While building: the beam from the ring (left edge) to the pen tip.
+  if (phase < BUILD && tip) {
+    const [tx, ty] = tip
+    const steps = Math.ceil(Math.hypot(tx, ty - H / 2) * 1.2)
+    for (let s = 0; s <= steps; s++) {
+      const u = s / steps
+      if (hash(s, cycle, t * 20) > 0.35) put(tx * u, H / 2 + (ty - H / 2) * u, 1)
+    }
+    put(tx, ty, 1)
+  }
+
+  // Dissolve: dots drop out at random and drift upward as sparks.
+  if (phase > DISSOLVE) {
+    const q = (phase - DISSOLVE) / (1 - DISSOLVE)
+    const out = new Map<string, number>()
+    for (const [key, v] of lit) {
+      const [x, y] = key.split(',').map(Number)
+      const h = hash(x, y, cycle)
+      if (h > q) {
+        const rise = q * 6 * h
+        const k = `${x},${Math.round(y - rise)}`
+        if (y - rise >= 0) out.set(k, v * (1 - q * 0.6))
+      }
+    }
+    return out
+  }
+  return lit
 }
 
 function shade([r, g, b]: Rgb, v: number): number {
-  const k = 0.25 + 0.75 * v
-  return (Math.round(r * k) << 16) | (Math.round(g * k) << 8) | Math.round(b * k)
+  // Brightest dots lift toward white, like the hot core of a construct.
+  const white = Math.max(0, v - 0.85) * 4
+  const k = 0.3 + 0.7 * v
+  const mix = (c: number) => Math.min(255, Math.round(c * k + (255 - c * k) * white * 0.5))
+  return (mix(r) << 16) | (mix(g) << 8) | mix(b)
 }
 
 // RasterProps.cells: base64 of [codePoint, fg, bg] u32 triplets, row-major.
 export function waveCells(columns: number, t: number, rgb: Rgb): string {
+  const lit = constructFrame(columns, t)
   const words = new Uint32Array(columns * WAVE_ROWS * 3)
-  const width = columns * 2
-  const height = WAVE_ROWS * 4
   for (let row = 0; row < WAVE_ROWS; row++) {
     for (let col = 0; col < columns; col++) {
       let bits = 0
-      let total = 0
+      let peak = 0
       for (let sx = 0; sx < 2; sx++) {
         for (let sy = 0; sy < 4; sy++) {
-          const v = brightness(col * 2 + sx, row * 4 + sy, t, width, height)
-          total += v
-          if (v > DITHER[sx][sy]) bits |= DOT_BITS[sx][sy]
+          const v = lit.get(`${col * 2 + sx},${row * 4 + sy}`)
+          if (v) {
+            bits |= DOT_BITS[sx][sy]
+            peak = Math.max(peak, v)
+          }
         }
       }
       const i = (row * columns + col) * 3
       words[i] = BRAILLE + bits
-      words[i + 1] = shade(rgb, total / 8)
+      words[i + 1] = shade(rgb, peak)
       words[i + 2] = DEFAULT_BG
     }
   }

@@ -83,6 +83,31 @@ def ring_left(art, rows, color, reset):
     return "\n".join(out)
 
 
+def with_corner_ascii(block, art, color, reset):
+    # Right-align a small drawing against the block's rows, bottom-aligned,
+    # in the dim colour. Needs COLUMNS (Claude Code sets it); skipped when
+    # unknown or when the rows leave no room.
+    if not art:
+        return block
+    try:
+        cols = int(os.environ.get("COLUMNS", ""))
+    except ValueError:
+        return block
+    lines = block.split("\n")
+    art_w = max(len(a) for a in art)
+    start = cols - 4 - art_w  # Claude Code indents the row; keep clear of the edge
+    offset = len(lines) - len(art)
+    for i, art_row in enumerate(art):
+        j = offset + i
+        if j < 0:
+            continue
+        used = visible_width(lines[j])
+        if start - used < 3:
+            return block
+        lines[j] = f"{lines[j]}{' ' * (start - used)}{color}{art_row.rstrip()}{reset}"
+    return "\n".join(lines)
+
+
 def charge_bar(pct, width=10):
     filled = max(0, min(width, round(pct / 100 * width)))
     return "\u25b0" * filled + "\u25b1" * (width - filled)
@@ -243,6 +268,7 @@ def main():
             "  ".join(bars),
         ]
         line = ring_left(art, rows, text, reset)
+        line = with_corner_ascii(line, theme.get("corner_ascii"), dim, reset)
     print(line)
 
 

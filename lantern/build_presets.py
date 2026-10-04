@@ -19,6 +19,10 @@ HAL_ART = ["▀▀▀▀▀██████▀▀▀▀▀", "    ▟▛    �
 JOHN_ART = ["▀▀▀▀▀██████▀▀▀▀▀", "    ▟▛ ▄▄ ▜▙    ", "    ▜▙ ▀▀ ▟▛    ", "▄▄▄▄▄██████▄▄▄▄▄"]  # solid core
 GUY_ART = ["▀▀▀▀▀██████▀▀▀▀▀", "    ▟▛ ▛▀ ▜▙    ", "    ▜▙ ▙█ ▟▛    ", "▄▄▄▄▄██████▄▄▄▄▄"]  # his G
 
+# Daniel's ring drawing (an image-to-ASCII export), shrunk to 4 rows with
+# ascii_to_braille.to_ascii. Sits dim in the statusline's bottom-right corner.
+RING_ASCII = ["   :==+: ", ".-=*==.=-", "=*+=*+++-", " +*--:   "]
+
 ANNOUNCEMENT = ("In brightest day, in blackest night, no evil shall escape my sight."
                 " ~ If you can will it, create it.")
 
@@ -99,6 +103,7 @@ for slug, L in LANTERNS.items():
         "usage": USAGE,
         "labels": LABELS,
         "corner_art": L["art"],
+        "corner_ascii": RING_ASCII,
         "announcement": ANNOUNCEMENT,
     }
     with open(os.path.join(PRESETS, f"{slug}.json"), "w", encoding="utf-8") as f:
