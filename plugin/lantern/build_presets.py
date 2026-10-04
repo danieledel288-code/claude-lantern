@@ -8,6 +8,7 @@ import os
 HERE = os.path.dirname(os.path.abspath(__file__))
 PRESETS = os.path.join(HERE, "presets")
 CC_THEMES = os.path.join(HERE, "cc-themes")
+PLUGIN_THEMES = os.path.join(os.path.dirname(HERE), "themes")  # what the plugin ships
 USAGE = {"show_remaining": True, "five_hour": "ring", "seven_day": "lantern",
          "cost_suffix": "willpower spent"}
 LABELS = {"model": "corps: ", "dir": "sector: "}
@@ -122,6 +123,8 @@ for slug, L in LANTERNS.items():
         },
     }
     with open(os.path.join(CC_THEMES, f"{slug}.json"), "w", encoding="utf-8") as f:
+        json.dump(cc_theme, f, indent=2, ensure_ascii=False)
+    with open(os.path.join(PLUGIN_THEMES, f"{slug}.json"), "w", encoding="utf-8") as f:
         json.dump(cc_theme, f, indent=2, ensure_ascii=False)
 
 print("presets written")

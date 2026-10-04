@@ -1,0 +1,15 @@
+{
+  "name": "Hal Jordan",
+  "base": "dark",
+  "overrides": {
+    "claude": "#1aff8c",
+    "claudeShimmer": "#8cffc4",
+    "clawd_body": "#1aff8c",
+    "promptBorder": "#109a55",
+    "permission": "#1aff8c",
+    "suggestion": "#8cffc4",
+    "remember": "#109a55",
+    "rate_limit_fill": "#1aff8c",
+    "success": "#1aff8c"
+  }
+}

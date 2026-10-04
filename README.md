@@ -5,7 +5,7 @@ A Green Lantern theme for [Claude Code](https://code.claude.com). Pick your Lant
 - **Color theme**: spinner, mascot, prompt border and accents in your Lantern's color
 - **Spinner words**: Hal is "Flying by the seat of my pants…", John is "Building it bolt by bolt…", Guy is "Out-yelling Hal…"
 - **Statusline**: the emblem on the left with a 4-row HUD beside it. Plan usage shows as charge bars: `ring` (5-hour window) and `lantern` (weekly), counting down.
-- **Constructs**: while Claude works, a beam fires from your ring and builds a construct above the spinner (the emblem, a cube, a bridge, a hammer, a car, a bottle opener, and one rude hand), which holds and then dissolves into sparks
+- **Constructs**: while Claude works, a beam fires from your ring and builds a construct above the spinner (the emblem, a cube, a bridge, a hammer, a car, a bottle opener, and one rude hand), which holds and then dissolves into sparks. The spinner word changes with each new construct
 - **Your Lantern's name** on the right of the statusline
 - **Welcome oath**: *In brightest day, in blackest night, no evil shall escape my sight.*
 
@@ -27,25 +27,37 @@ A Green Lantern theme for [Claude Code](https://code.claude.com). Pick your Lant
 
 Needs Python 3 and a recent Claude Code (custom themes and plugin hooks are newer features).
 
+**As a plugin (recommended).** Inside Claude Code:
+
+```
+/plugin marketplace add danieledel288-code/claude-lantern
+/plugin install lantern@claude-lantern
+/lantern:preset hal
+```
+
+The last step sets up the statusline, spinner words and welcome oath. Plugins aren't allowed to change those on their own, so the plugin does it when you run it. Restart `claude` afterwards. Switch Lanterns any time with `/lantern:preset john` (or `guy`, `hal`, `default`).
+
+**Manually**, without the plugin system:
+
 ```sh
 git clone https://github.com/danieledel288-code/claude-lantern && cd claude-lantern
 python install.py          # or: python install.py john
 ```
 
-On macOS/Linux use `python3` if `python` isn't on your PATH. Then restart `claude`. Switch any time with `/preset hal`, `/preset john`, `/preset guy` or `/preset default`.
+On macOS/Linux use `python3` if `python` isn't on your PATH. Then restart `claude` and switch with `/preset hal`, `/preset john`, `/preset guy` or `/preset default`.
 
-`install.py` backs up `~/.claude/settings.json` before touching it, and `python install.py --uninstall` restores that backup.
+Either way, `settings.json` is backed up before anything is changed, and `python plugin/setup.py --uninstall` (or `python install.py --uninstall`) restores it.
 
 ## What it changes
 
-- `~/.claude/lantern/`: the statusline, the preset switcher, the presets and the wave plugin
+- `~/.claude/lantern/`: the statusline, the preset switcher and the presets (plus a copy of the plugin for manual installs)
 - `~/.claude/themes/<lantern>.json`: the color themes
 - `~/.claude/commands/preset.md`: the `/preset` command
-- `~/.claude/settings.json`: `statusLine`, `theme`, `spinnerVerbs`, `companyAnnouncements`, and `env.CLAUDE_CODE_PLUGIN_DIRS` (to load the wave plugin)
+- `~/.claude/settings.json`: `statusLine`, `theme`, `spinnerVerbs`, `companyAnnouncements`, and for manual installs `env.CLAUDE_CODE_PLUGIN_DIRS` (to load the plugin)
 
 ## Make your own Lantern
 
-Add an entry to `LANTERNS` in `lantern/build_presets.py` and run it. `lantern/emblem.py` rasterizes ring shapes into quarter-block characters if you want a new emblem.
+Add an entry to `LANTERNS` in `plugin/lantern/build_presets.py` and run it. `plugin/lantern/emblem.py` rasterizes ring shapes into quarter-block characters if you want a new emblem.
 
 The mascot color uses `clawd_body`, a theme token Claude Code doesn't document. If a future version renames it, the mascot just falls back to orange.
 

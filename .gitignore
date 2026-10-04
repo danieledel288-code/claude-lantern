@@ -1,4 +1,5 @@
 __pycache__/
-lantern/active
+active
+mode
 .claude-plugin/types/
 tsconfig.json

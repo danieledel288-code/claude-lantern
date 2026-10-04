@@ -35,6 +35,13 @@ def active():
         return "default"
 
 
+def install_mode():
+    try:
+        return open(os.path.join(HERE, "mode"), encoding="utf-8").read().strip()
+    except OSError:
+        return "manual"
+
+
 def install_cc_themes():
     src = os.path.join(HERE, "cc-themes")
     dst = os.path.join(HOME, ".claude", "themes")
@@ -73,9 +80,16 @@ def set_theme(name):
         settings["companyAnnouncements"] = [theme["announcement"]]
     else:
         settings.pop("companyAnnouncements", None)
-    if theme.get("cliTheme"):
-        install_cc_themes()
-        settings["theme"] = theme["cliTheme"]
+    ref = theme.get("cliTheme")
+    if ref:
+        # Installed as a plugin, the color themes come from the plugin and are
+        # named custom:lantern:<slug>; a manual install copies them into
+        # ~/.claude/themes as custom:<slug>.
+        if ref.startswith("custom:") and install_mode() == "plugin":
+            ref = "custom:lantern:" + ref[len("custom:"):]
+        elif ref.startswith("custom:"):
+            install_cc_themes()
+        settings["theme"] = ref
     with open(SETTINGS, "w", encoding="utf-8") as f:
         json.dump(settings, f, indent=2)
 

@@ -17,7 +17,7 @@ const DOT_BITS = [
 export type Rgb = [number, number, number]
 type Seg = [number, number, number, number] // x0, y0, x1, y1 in shape units (0..1 tall)
 
-const CYCLE = 3.4 // seconds per construct
+export const CYCLE = 3.4 // seconds per construct (the spinner verb changes with it)
 const BUILD = 0.45 // fraction of the cycle spent drawing
 const DISSOLVE = 0.8 // fraction at which it starts breaking apart
 

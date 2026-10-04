@@ -1,0 +1,15 @@
+{
+  "name": "John Stewart",
+  "base": "dark",
+  "overrides": {
+    "claude": "#14e0c0",
+    "claudeShimmer": "#8ff2e2",
+    "clawd_body": "#14e0c0",
+    "promptBorder": "#0a8a76",
+    "permission": "#14e0c0",
+    "suggestion": "#8ff2e2",
+    "remember": "#0a8a76",
+    "rate_limit_fill": "#14e0c0",
+    "success": "#14e0c0"
+  }
+}

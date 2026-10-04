@@ -1,0 +1,12 @@
+{
+  "name": "claude-lantern",
+  "description": "In brightest day, in blackest night: a Green Lantern theme for Claude Code",
+  "owner": { "name": "Daniel Edelstein" },
+  "plugins": [
+    {
+      "name": "lantern",
+      "source": "./plugin",
+      "description": "Hal/John/Guy color themes, ring HUD statusline, and animated constructs above the spinner"
+    }
+  ]
+}

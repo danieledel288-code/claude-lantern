@@ -1,0 +1,15 @@
+{
+  "name": "Guy Gardner",
+  "base": "dark",
+  "overrides": {
+    "claude": "#9dff00",
+    "claudeShimmer": "#d4ff8a",
+    "clawd_body": "#9dff00",
+    "promptBorder": "#5c9400",
+    "permission": "#9dff00",
+    "suggestion": "#d4ff8a",
+    "remember": "#5c9400",
+    "rate_limit_fill": "#9dff00",
+    "success": "#9dff00"
+  }
+}
