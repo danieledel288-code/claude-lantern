@@ -99,6 +99,7 @@ for slug, L in LANTERNS.items():
         "usage": USAGE,
         "labels": LABELS,
         "corner_art": L["art"],
+        "name": L["cc"]["name"].upper(),
         "announcement": ANNOUNCEMENT,
     }
     with open(os.path.join(PRESETS, f"{slug}.json"), "w", encoding="utf-8") as f:

@@ -77,6 +77,46 @@ const SHAPES: ((w: number) => Seg[])[] = [
     const c = w / 2
     return [...box(c - 1.2, 0.1, c + 0.4, 0.45), ...box(c - 0.15, 0.45, c + 0.05, 0.95)]
   },
+  // A car in profile: body line, cabin, two wheels.
+  (w) => {
+    const c = w / 2
+    const body: [number, number][] = [
+      [c - 1.4, 0.72], [c - 1.4, 0.5], [c - 0.7, 0.42], [c - 0.4, 0.1], [c + 0.45, 0.1],
+      [c + 0.8, 0.42], [c + 1.4, 0.5], [c + 1.4, 0.72],
+    ]
+    const segs: Seg[] = []
+    for (let i = 0; i < body.length - 1; i++) segs.push([...body[i], ...body[i + 1]] as Seg)
+    segs.push([c - 1.4, 0.72, c - 1.0, 0.72], [c - 0.5, 0.72, c + 0.5, 0.72], [c + 1.0, 0.72, c + 1.4, 0.72])
+    return [...segs, ...circle(c - 0.75, 0.75, 0.22, 14), ...circle(c + 0.75, 0.75, 0.22, 14)]
+  },
+  // The salute: a fist with the middle finger up.
+  (w) => {
+    const c = w / 2
+    return [
+      [c - 0.2, 0.45, c - 0.2, 0.17],
+      ...circle(c, 0.17, 0.2, 12).slice(6),
+      [c + 0.2, 0.17, c + 0.2, 0.45],
+      // Folded knuckles either side of it.
+      ...circle(c - 0.36, 0.45, 0.14, 10).slice(5),
+      ...circle(c - 0.62, 0.48, 0.12, 10).slice(5),
+      ...circle(c + 0.36, 0.45, 0.14, 10).slice(5),
+      [c - 0.74, 0.48, c - 0.74, 0.95],
+      [c - 0.74, 0.95, c + 0.5, 0.95],
+      [c + 0.5, 0.95, c + 0.5, 0.45],
+      // Thumb tucked across the front.
+      [c - 0.7, 0.68, c + 0.15, 0.72],
+    ]
+  },
+  // A bottle opener: handle, ring head, and the lip that catches the cap.
+  (w) => {
+    const c = w / 2
+    return [
+      ...box(c - 1.5, 0.38, c + 0.25, 0.62),
+      ...circle(c + 0.65, 0.5, 0.45, 22),
+      ...circle(c + 0.7, 0.5, 0.22, 14),
+      [c + 0.48, 0.5, c + 0.92, 0.5],
+    ]
+  },
 ]
 
 /** A cheap per-dot hash in 0..1, stable across frames, for sparkle/dissolve. */

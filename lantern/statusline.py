@@ -83,28 +83,30 @@ def ring_left(art, rows, color, reset):
     return "\n".join(out)
 
 
-def with_corner_ascii(block, art, color, reset):
-    # Right-align a small drawing against the block's rows, bottom-aligned,
-    # in the dim colour. Needs COLUMNS (Claude Code sets it); skipped when
-    # unknown or when the rows leave no room.
-    if not art:
-        return block
+def spaced(name):
+    # "HAL JORDAN" -> "H A L   J O R D A N": reads as a title, not a label.
+    return "   ".join(" ".join(word) for word in name.split())
+
+
+def with_right_text(block, texts, first_row=0):
+    # Right-align short texts on the block's rows, starting at first_row and
+    # never on the last row (Claude Code trims the right end of the final
+    # status row). Needs COLUMNS, which Claude Code sets; skipped otherwise
+    # or when a row has no room.
     try:
         cols = int(os.environ.get("COLUMNS", ""))
     except ValueError:
         return block
     lines = block.split("\n")
-    art_w = max(len(a) for a in art)
-    start = cols - 4 - art_w  # Claude Code indents the row; keep clear of the edge
-    offset = len(lines) - len(art)
-    for i, art_row in enumerate(art):
-        j = offset + i
-        if j < 0:
-            continue
-        used = visible_width(lines[j])
-        if start - used < 3:
+    for i, text in enumerate(texts):
+        j = first_row + i
+        if j >= len(lines) - 1:
+            break
+        end = cols - 4  # Claude Code indents the row; keep clear of the edge
+        gap = end - visible_width(lines[j]) - visible_width(text)
+        if gap < 3:
             return block
-        lines[j] = f"{lines[j]}{' ' * (start - used)}{color}{art_row.rstrip()}{reset}"
+        lines[j] = f"{lines[j]}{' ' * gap}{text}"
     return "\n".join(lines)
 
 
@@ -268,7 +270,9 @@ def main():
             "  ".join(bars),
         ]
         line = ring_left(art, rows, text, reset)
-        line = with_corner_ascii(line, theme.get("corner_ascii"), dim, reset)
+        if theme.get("name"):
+            label = [f"\033[1m{text}{spaced(theme['name'])}{reset}", f"{dim}GREEN LANTERN CORPS{reset}"]
+            line = with_right_text(line, label, first_row=1)
     print(line)
 
 
