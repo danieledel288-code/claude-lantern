@@ -74,12 +74,14 @@ def set_theme(name):
         settings["spinnerVerbs"] = {"mode": "replace", "verbs": verbs}
     else:
         settings.pop("spinnerVerbs", None)
-    # Startup text on the welcome screen (the Lantern oath); removed for
-    # presets without one.
-    if theme.get("announcement"):
-        settings["companyAnnouncements"] = [theme["announcement"]]
+    # The oath shows as spinner tips. (It used to be a companyAnnouncement,
+    # but Claude Code always heads those "Message from <you>'s Organization",
+    # so it's removed here even for presets that have no tips.)
+    settings.pop("companyAnnouncements", None)
+    if theme.get("tips"):
+        settings["spinnerTipsOverride"] = {"tips": theme["tips"], "excludeDefault": True}
     else:
-        settings.pop("companyAnnouncements", None)
+        settings.pop("spinnerTipsOverride", None)
     ref = theme.get("cliTheme")
     if ref:
         # Installed as a plugin, the color themes come from the plugin and are

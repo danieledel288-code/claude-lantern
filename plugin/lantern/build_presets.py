@@ -101,7 +101,7 @@ for slug, L in LANTERNS.items():
         "labels": LABELS,
         "corner_art": L["art"],
         "name": L["cc"]["name"].upper(),
-        "announcement": ANNOUNCEMENT,
+        "tips": [part.strip() for part in ANNOUNCEMENT.split("~")],
     }
     with open(os.path.join(PRESETS, f"{slug}.json"), "w", encoding="utf-8") as f:
         json.dump(preset, f, indent=2, ensure_ascii=False)

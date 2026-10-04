@@ -53,7 +53,7 @@ Either way, `settings.json` is backed up before anything is changed, and `python
 - `~/.claude/lantern/`: the statusline, the preset switcher and the presets (plus a copy of the plugin for manual installs)
 - `~/.claude/themes/<lantern>.json`: the color themes
 - `~/.claude/commands/preset.md`: the `/preset` command
-- `~/.claude/settings.json`: `statusLine`, `theme`, `spinnerVerbs`, `companyAnnouncements`, and for manual installs `env.CLAUDE_CODE_PLUGIN_DIRS` (to load the plugin)
+- `~/.claude/settings.json`: `statusLine`, `theme`, `spinnerVerbs`, `spinnerTipsOverride`, and for manual installs `env.CLAUDE_CODE_PLUGIN_DIRS` (to load the plugin)
 
 ## Make your own Lantern
 
