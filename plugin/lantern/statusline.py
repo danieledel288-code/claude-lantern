@@ -179,7 +179,7 @@ def with_cached_rate_limits(rate_limits):
     return fresh or None
 
 
-def format_usage(labels, rate_limits, cost_usd, paint=None):
+def format_usage(labels, rate_limits, cost_usd, paint=None, bar_width=10):
     # Real plan-quota % (5h session window, 7-day window) when Claude Code
     # exposes it. Falls back to the notional $ cost figure on older Claude
     # Code versions or the known Max/OAuth bug where rate_limits is absent
@@ -196,7 +196,8 @@ def format_usage(labels, rate_limits, cost_usd, paint=None):
             # Some themes show what's left (ring power) instead of what's used.
             pct = max(0, 100 - used) if labels["show_remaining"] else used
             if paint:
-                parts.append(paint(label, f"{charge_bar(pct)} {pct:.0f}%"))
+                bar = f"{charge_bar(pct, bar_width)} " if bar_width else ""
+                parts.append(paint(label, f"{bar}{pct:.0f}%"))
             else:
                 parts.append(f"{label} {pct:.0f}%")
 
@@ -262,7 +263,17 @@ def main():
 
         names = [labels.get("model", "").strip(" :") or "model", labels.get("dir", "").strip(" :") or "dir"]
         width = max(len(n) for n in names)
-        bars = format_usage(theme["usage"], with_cached_rate_limits(data.get("rate_limits")), cost_usd, paint)
+        # Narrow panes (split screen) cut off the bottom row, so shrink the
+        # charge bars until the row fits: full, half, then percentages only.
+        try:
+            room = int(os.environ.get("COLUMNS", "")) - 6 - max(visible_width(a) for a in art) - 3
+        except ValueError:
+            room = None
+        limits = with_cached_rate_limits(data.get("rate_limits"))
+        for bar_width in (10, 5, 0):
+            bars = format_usage(theme["usage"], limits, cost_usd, paint, bar_width)
+            if room is None or visible_width("  ".join(bars)) <= room:
+                break
         rows = [
             f"{text}{mood}{reset}",
             paint(names[0].ljust(width), model_name),
@@ -272,7 +283,14 @@ def main():
         line = ring_left(art, rows, text, reset)
         if theme.get("name"):
             label = [f"\033[1m{text}{spaced(theme['name'])}{reset}", f"{dim}GREEN LANTERN CORPS{reset}"]
-            line = with_right_text(line, label, first_row=1)
+            fitted = with_right_text(line, label, first_row=1)
+            if fitted == line:
+                # Spaced title didn't fit; try the plain name before giving up.
+                label[0] = f"[1m{text}{theme['name']}{reset}"
+                fitted = with_right_text(line, label, first_row=1)
+            if fitted == line:
+                fitted = with_right_text(line, label[:1], first_row=1)
+            line = fitted
     print(line)
 
 
