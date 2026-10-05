@@ -286,7 +286,7 @@ def main():
             fitted = with_right_text(line, label, first_row=1)
             if fitted == line:
                 # Spaced title didn't fit; try the plain name before giving up.
-                label[0] = f"[1m{text}{theme['name']}{reset}"
+                label[0] = f"\033[1m{text}{theme['name']}{reset}"
                 fitted = with_right_text(line, label, first_row=1)
             if fitted == line:
                 fitted = with_right_text(line, label[:1], first_row=1)
