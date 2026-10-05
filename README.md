@@ -1,5 +1,7 @@
 # Claude Lantern
 
+![Claude Lantern: a construct building above the spinner, the ring HUD statusline, and the Hal, John and Guy rings](docs/hero.png)
+
 A Green Lantern theme for [Claude Code](https://code.claude.com). Pick your Lantern and the terminal changes to match:
 
 - **Color theme**: spinner, mascot, prompt border and accents in your Lantern's color
