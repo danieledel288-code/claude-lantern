@@ -1,6 +1,6 @@
 {
   "name": "lantern",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Green Lantern theme for Claude Code: Hal/John/Guy color themes, a ring HUD statusline, and constructs built above the spinner while Claude works",
   "author": { "name": "Daniel Edelstein" },
   "homepage": "https://github.com/danieledel288-code/claude-lantern",

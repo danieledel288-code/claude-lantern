@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Set up Claude Lantern, switch presets, or remove it.
 
-    setup.py --plugin [preset]     used by the plugin's /lantern:preset skill
+    setup.py --plugin [preset]     run by the plugin's /hal, /john, /guy, /lantern-off on first use
     setup.py --manual [preset]     used by the repo's install.py
     setup.py --manual --uninstall
 
@@ -85,10 +85,9 @@ def install(mode, preset):
     if mode == "manual":
         shutil.copytree(PLUGIN, MANUAL_PLUGIN, ignore=shutil.ignore_patterns("__pycache__", "lantern", "setup.py", "skills", "tsconfig.json", "types"))
         dirs.append(fwd(MANUAL_PLUGIN))
-        os.makedirs(os.path.dirname(COMMAND), exist_ok=True)
-        repo_command = os.path.join(os.path.dirname(PLUGIN), "commands", "preset.md")
-        if os.path.exists(repo_command):
-            shutil.copyfile(repo_command, COMMAND)
+    # The old /preset command was replaced by the plugin's /hal, /john, /guy.
+    if os.path.exists(COMMAND) and "Claude Lantern" in open(COMMAND, encoding="utf-8").read():
+        os.remove(COMMAND)
     # In plugin mode the plugin provides the animation; drop any manual copy
     # so it isn't loaded twice.
     set_plugin_dirs(settings, dirs)

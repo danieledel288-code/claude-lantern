@@ -107,6 +107,50 @@ const SHAPES: ((w: number) => Seg[])[] = [
       [c - 0.7, 0.68, c + 0.15, 0.72],
     ]
   },
+  // A fighter jet in profile: pointed nose, canopy, swept wing, tail fin,
+  // and an exhaust trail behind it.
+  (w) => {
+    const c = w / 2
+    const hull: [number, number][] = [
+      [c + 1.6, 0.55], [c + 1.0, 0.42], [c + 0.6, 0.4], [c - 0.9, 0.42], [c - 1.15, 0.12],
+      [c - 1.35, 0.12], [c - 1.3, 0.45], [c - 1.4, 0.55], [c - 1.3, 0.62], [c + 1.0, 0.66], [c + 1.6, 0.55],
+    ]
+    const segs: Seg[] = []
+    for (let i = 0; i < hull.length - 1; i++) segs.push([...hull[i], ...hull[i + 1]] as Seg)
+    return [
+      ...segs,
+      // canopy
+      ...circle(c + 0.65, 0.42, 0.18, 12).slice(6),
+      // swept wing under the hull
+      [c + 0.3, 0.64, c - 0.5, 0.95], [c - 0.5, 0.95, c - 0.75, 0.95], [c - 0.75, 0.95, c - 0.45, 0.65],
+      // exhaust trail
+      [c - 1.55, 0.52, c - 2.3, 0.5], [c - 1.55, 0.6, c - 2.6, 0.62],
+    ]
+  },
+  // A double-bit battle axe: two curved blades on a long haft.
+  (w) => {
+    const c = w / 2
+    const blade = (dir: number): Seg[] => {
+      const segs: Seg[] = []
+      const N = 10
+      for (let i = 0; i < N; i++) {
+        const a0 = -0.9 + (1.8 * i) / N
+        const a1 = -0.9 + (1.8 * (i + 1)) / N
+        segs.push([c + dir * (0.25 + 0.5 * Math.cos(a0)), 0.42 + 0.42 * Math.sin(a0), c + dir * (0.25 + 0.5 * Math.cos(a1)), 0.42 + 0.42 * Math.sin(a1)])
+      }
+      segs.push([c + dir * 0.1, 0.3, c + dir * (0.25 + 0.5 * Math.cos(-0.9)), 0.42 + 0.42 * Math.sin(-0.9)])
+      segs.push([c + dir * 0.1, 0.54, c + dir * (0.25 + 0.5 * Math.cos(0.9)), 0.42 + 0.42 * Math.sin(0.9)])
+      return segs
+    }
+    return [
+      // the haft runs the whole height, slightly tilted
+      [c - 0.12, 0.02, c + 0.12, 0.98],
+      [c + 0.04, 0.02, c + 0.28, 0.98],
+      ...box(c - 0.12, 0.28, c + 0.14, 0.56),
+      ...blade(1),
+      ...blade(-1),
+    ]
+  },
   // A bottle opener: handle, ring head, and the lip that catches the cap.
   (w) => {
     const c = w / 2
