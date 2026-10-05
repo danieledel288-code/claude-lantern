@@ -43,7 +43,14 @@ function box(x0: number, y0: number, x1: number, y1: number): Seg[] {
 // Shapes in units where height is 1 and x runs 0..width (aspect from braille
 // dots being square). Each is drawn in order, so the trace order is the
 // segment order.
-const SHAPES: ((w: number) => Seg[])[] = [
+type Shape = ((w: number) => Seg[]) & { hero?: boolean }
+
+/** Marks the star construct: it holds twice as long and burns white-hot. */
+function hero(draw: (w: number) => Seg[]): Shape {
+  return Object.assign(draw, { hero: true })
+}
+
+const SHAPES: Shape[] = [
   // The emblem: top bar, ring, bottom bar.
   (w) => [[w / 2 - 1.1, 0.05, w / 2 + 1.1, 0.05], ...circle(w / 2, 0.5, 0.42), [w / 2 - 1.1, 0.95, w / 2 + 1.1, 0.95]],
   // A wireframe cube.
@@ -251,8 +258,8 @@ const SHAPES: ((w: number) => Seg[])[] = [
     ]
   },
   // A Green Lantern power battery: the lantern itself, with its handle,
-  // cap, glass body and the emblem glowing in the middle.
-  (w) => {
+  // cap, glass body and the emblem glowing in the middle. The hero construct.
+  hero((w) => {
     const c = w / 2
     return [
       // handle arc on top
@@ -268,7 +275,7 @@ const SHAPES: ((w: number) => Seg[])[] = [
       [c - 0.28, 0.7, c + 0.28, 0.7],
       ...circle(c, 0.53, 0.15, 12),
     ]
-  },
+  }),
   // A bottle opener: handle, ring head, and the lip that catches the cap.
   (w) => {
     const c = w / 2
@@ -287,22 +294,55 @@ function hash(x: number, y: number, s: number): number {
   return v - Math.floor(v)
 }
 
+const HERO_HOLD = 2 // the hero construct stays this many cycles
+
+function durationOf(shape: Shape): number {
+  return shape.hero ? CYCLE * HERO_HOLD : CYCLE
+}
+
+const PERIOD = SHAPES.reduce((sum, shape) => sum + durationOf(shape), 0)
+
 /**
- * The lit dots for one frame: Map of "x,y" -> intensity 0..1, in sub-dot
- * coordinates (width = columns * 2, height = WAVE_ROWS * 4).
+ * Which construct is up at time t: its index in SHAPES, a count that goes
+ * up by one per construct (the spinner word follows it), and the seconds
+ * into it.
+ */
+export function constructAt(t: number): { index: number; count: number; local: number; duration: number } {
+  const lap = Math.floor(t / PERIOD)
+  let rest = t - lap * PERIOD
+  for (let i = 0; i < SHAPES.length; i++) {
+    const duration = durationOf(SHAPES[i])
+    if (rest < duration) return { index: i, count: lap * SHAPES.length + i, local: rest, duration }
+    rest -= duration
+  }
+  return { index: 0, count: (lap + 1) * SHAPES.length, local: 0, duration: durationOf(SHAPES[0]) }
+}
+
+/**
+ * The lit dots for one frame: Map of "x,y" -> intensity, in sub-dot
+ * coordinates (width = columns * 2, height = WAVE_ROWS * 4). Intensity is
+ * 0..1 for ordinary constructs; the hero runs above 1, which shade() turns
+ * white-hot.
  */
 export function constructFrame(columns: number, t: number): Map<string, number> {
   const W = columns * 2
   const H = WAVE_ROWS * 4
   const unit = H - 1 // shape units -> dots
   const shapeWidth = W / unit
-  const cycle = Math.floor(t / CYCLE)
-  const phase = (t % CYCLE) / CYCLE
-  const segs = SHAPES[cycle % SHAPES.length](shapeWidth)
+  const { index, count: cycle, local, duration } = constructAt(t)
+  const shape = SHAPES[index]
+  const segs = shape(shapeWidth)
+  // Build and dissolve take the same time for every construct; a longer
+  // construct just holds longer in between.
+  const buildSecs = BUILD * CYCLE
+  const dissolveSecs = (1 - DISSOLVE) * CYCLE
+  const building = local < buildSecs
+  const dissolveStart = duration - dissolveSecs
+  const glow = shape.hero ? 1.12 + 0.13 * Math.sin(t * 4.5) : 0.85
 
   const lengths = segs.map(([x0, y0, x1, y1]) => Math.hypot(x1 - x0, y1 - y0))
   const total = lengths.reduce((a, b) => a + b, 0)
-  const built = Math.min(1, phase / BUILD) * total
+  const built = Math.min(1, local / buildSecs) * total
 
   const lit = new Map<string, number>()
   const put = (x: number, y: number, v: number) => {
@@ -323,14 +363,14 @@ export function constructFrame(columns: number, t: number): Map<string, number> 
     const steps = Math.max(1, Math.ceil(len * unit * f * 2))
     for (let s = 0; s <= steps; s++) {
       const u = (s / steps) * f
-      put((x0 + (x1 - x0) * u) * unit, (y0 + (y1 - y0) * u) * unit, 0.85)
+      put((x0 + (x1 - x0) * u) * unit, (y0 + (y1 - y0) * u) * unit, glow)
     }
     tip = [(x0 + (x1 - x0) * f) * unit, (y0 + (y1 - y0) * f) * unit]
     run += len
   }
 
   // While building: the beam from the ring (left edge) to the pen tip.
-  if (phase < BUILD && tip) {
+  if (building && tip) {
     const [tx, ty] = tip
     const steps = Math.ceil(Math.hypot(tx, ty - H / 2) * 1.2)
     for (let s = 0; s <= steps; s++) {
@@ -340,9 +380,19 @@ export function constructFrame(columns: number, t: number): Map<string, number> 
     put(tx, ty, 1)
   }
 
+  // The hero gets a faint, twinkling halo once it's built.
+  if (shape.hero && !building) {
+    for (const key of [...lit.keys()]) {
+      const [x, y] = key.split(',').map(Number)
+      for (const [dx, dy] of [[-1, 0], [1, 0], [0, -1], [0, 1], [-2, 0], [2, 0]]) {
+        if (hash(x + dx, y + dy, Math.floor(t * 6)) > 0.8) put(x + dx, y + dy, 0.35)
+      }
+    }
+  }
+
   // Dissolve: dots drop out at random and drift upward as sparks.
-  if (phase > DISSOLVE) {
-    const q = (phase - DISSOLVE) / (1 - DISSOLVE)
+  if (local > dissolveStart) {
+    const q = (local - dissolveStart) / dissolveSecs
     const out = new Map<string, number>()
     for (const [key, v] of lit) {
       const [x, y] = key.split(',').map(Number)
@@ -360,8 +410,8 @@ export function constructFrame(columns: number, t: number): Map<string, number> 
 
 function shade([r, g, b]: Rgb, v: number): number {
   // Brightest dots lift toward white, like the hot core of a construct.
-  const white = Math.max(0, v - 0.85) * 4
-  const k = 0.3 + 0.7 * v
+  const white = Math.min(1.6, Math.max(0, v - 0.85) * 4)
+  const k = 0.3 + 0.7 * Math.min(v, 1)
   const mix = (c: number) => Math.min(255, Math.round(c * k + (255 - c * k) * white * 0.5))
   return (mix(r) << 16) | (mix(g) << 8) | mix(b)
 }

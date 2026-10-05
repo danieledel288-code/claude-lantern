@@ -1,6 +1,6 @@
 import type { EngineInterface, Register, Timer } from 'claude-code'
 
-import { CYCLE, WAVE_ROWS, waveCells } from './wave'
+import { WAVE_ROWS, constructAt, waveCells } from './wave'
 import type { Rgb } from './wave'
 
 // Claude Lantern's runtime lives in ~/.claude/lantern (statusline, presets,
@@ -88,7 +88,7 @@ function start($: EngineInterface) {
   if (state.ticker) return
   state.ticker = $.clock.every(FRAME_MS, () => {
     const t = Date.now() / 1000
-    const cycle = Math.floor(t / CYCLE)
+    const cycle = constructAt(t).count
     if (cycle !== state.lastCycle) {
       state.lastCycle = cycle
       $.ui.invalidate('ui.render')
@@ -136,7 +136,7 @@ export const register: Register = on => {
   on('ui.render', { component: 'Spinner' }, async ($, e, next) => {
     const { lantern } = state
     if (!lantern || lantern.verbs.length === 0 || e.props.message) return next(e)
-    const word = lantern.verbs[Math.floor(Date.now() / 1000 / CYCLE) % lantern.verbs.length]
+    const word = lantern.verbs[constructAt(Date.now() / 1000).count % lantern.verbs.length]
     return next({ ...e, props: { ...e.props, word } })
   })
 
