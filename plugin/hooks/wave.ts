@@ -226,6 +226,49 @@ const SHAPES: ((w: number) => Seg[])[] = [
       [c - 1.2, 0.35, c - 2.0, 0.35], [c - 1.2, 0.52, c - 2.3, 0.52], [c - 1.2, 0.69, c - 2.0, 0.69],
     ]
   },
+  // A chainsaw: engine body with a handle loop, and a long bar with teeth.
+  (w) => {
+    const c = w / 2
+    const teeth: Seg[] = []
+    for (let i = 0; i < 9; i++) {
+      const x = c + 0.05 + i * 0.22
+      teeth.push([x, 0.36, x + 0.11, 0.26], [x + 0.11, 0.26, x + 0.22, 0.36])
+      teeth.push([x, 0.64, x + 0.11, 0.74], [x + 0.11, 0.74, x + 0.22, 0.64])
+    }
+    return [
+      ...box(c - 1.1, 0.2, c - 0.05, 0.85),
+      // top handle loop
+      [c - 1.0, 0.2, c - 0.85, 0.02], [c - 0.85, 0.02, c - 0.25, 0.02], [c - 0.25, 0.02, c - 0.15, 0.2],
+      // rear handle
+      [c - 1.1, 0.45, c - 1.6, 0.45], [c - 1.6, 0.45, c - 1.6, 0.8], [c - 1.6, 0.8, c - 1.1, 0.8],
+      // bar
+      [c - 0.05, 0.36, c + 2.05, 0.36],
+      [c - 0.05, 0.64, c + 2.05, 0.64],
+      // rounded tip: the right half of a circle
+      ...circle(c + 2.05, 0.5, 0.14, 10).slice(0, 3),
+      ...circle(c + 2.05, 0.5, 0.14, 10).slice(8),
+      ...teeth,
+    ]
+  },
+  // A Green Lantern power battery: the lantern itself, with its handle,
+  // cap, glass body and the emblem glowing in the middle.
+  (w) => {
+    const c = w / 2
+    return [
+      // handle arc on top
+      ...circle(c, 0.12, 0.28, 14).slice(7),
+      // cap and base
+      ...box(c - 0.45, 0.12, c + 0.45, 0.24),
+      ...box(c - 0.5, 0.82, c + 0.5, 0.95),
+      // glass body, flaring slightly
+      [c - 0.38, 0.24, c - 0.45, 0.82],
+      [c + 0.38, 0.24, c + 0.45, 0.82],
+      // the emblem: bars and ring
+      [c - 0.28, 0.36, c + 0.28, 0.36],
+      [c - 0.28, 0.7, c + 0.28, 0.7],
+      ...circle(c, 0.53, 0.15, 12),
+    ]
+  },
   // A bottle opener: handle, ring head, and the lip that catches the cap.
   (w) => {
     const c = w / 2
