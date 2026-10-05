@@ -184,6 +184,48 @@ const SHAPES: ((w: number) => Seg[])[] = [
       [c - 1.4, 0.5, c + 1.7, 0.5],
     ]
   },
+  // A rocket flying right: nose cone, body with a porthole, fins, flame.
+  (w) => {
+    const c = w / 2
+    return [
+      [c - 1.1, 0.3, c + 0.9, 0.3],
+      [c - 1.1, 0.7, c + 0.9, 0.7],
+      [c + 0.9, 0.3, c + 1.7, 0.5],
+      [c + 0.9, 0.7, c + 1.7, 0.5],
+      [c - 1.1, 0.3, c - 1.1, 0.7],
+      ...circle(c + 0.35, 0.5, 0.12, 12),
+      // fins
+      [c - 0.6, 0.3, c - 1.25, 0.02], [c - 1.25, 0.02, c - 1.25, 0.3],
+      [c - 0.6, 0.7, c - 1.25, 0.98], [c - 1.25, 0.98, c - 1.25, 0.7],
+      // flame
+      [c - 1.1, 0.38, c - 1.7, 0.42], [c - 1.7, 0.42, c - 1.45, 0.5],
+      [c - 1.45, 0.5, c - 2.1, 0.5], [c - 2.1, 0.5, c - 1.45, 0.55],
+      [c - 1.45, 0.55, c - 1.7, 0.62], [c - 1.7, 0.62, c - 1.1, 0.62],
+    ]
+  },
+  // A boxing glove mid-punch: big rounded mitt, thumb, laced cuff.
+  (w) => {
+    const c = w / 2
+    const mitt: Seg[] = []
+    const N = 18
+    for (let i = 0; i < N; i++) {
+      // a wide ellipse, open on the left where the cuff joins
+      const a0 = -1.9 + (3.8 * i) / N
+      const a1 = -1.9 + (3.8 * (i + 1)) / N
+      mitt.push([c + 0.25 + 0.75 * Math.cos(a0), 0.5 + 0.45 * Math.sin(a0), c + 0.25 + 0.75 * Math.cos(a1), 0.5 + 0.45 * Math.sin(a1)])
+    }
+    return [
+      ...mitt,
+      // thumb bump along the top
+      ...circle(c + 0.05, 0.22, 0.16, 12).slice(6),
+      // cuff
+      ...box(c - 0.95, 0.24, c - 0.3, 0.8),
+      [c - 0.75, 0.24, c - 0.75, 0.8],
+      [c - 0.55, 0.24, c - 0.55, 0.8],
+      // speed lines behind the punch
+      [c - 1.2, 0.35, c - 2.0, 0.35], [c - 1.2, 0.52, c - 2.3, 0.52], [c - 1.2, 0.69, c - 2.0, 0.69],
+    ]
+  },
   // A bottle opener: handle, ring head, and the lip that catches the cap.
   (w) => {
     const c = w / 2

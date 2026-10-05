@@ -38,7 +38,7 @@ While Claude is thinking, a beam fires from your ring and traces a construct lin
 ```
 the emblem · a wireframe cube · a suspension bridge · a hammer · a car
 a fighter jet · a battle axe · a shield · a longsword · a bottle opener
-and one rude hand
+a rocket · a boxing glove · and one rude hand
 ```
 
 They're drawn in your Lantern's color and repainted in place about 30 times a second.
