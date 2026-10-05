@@ -151,6 +151,39 @@ const SHAPES: ((w: number) => Seg[])[] = [
       ...blade(-1),
     ]
   },
+  // A heater shield with the Lantern ring set in it.
+  (w) => {
+    const c = w / 2
+    const side = (dir: number): Seg[] => {
+      const segs: Seg[] = [[c + dir * 0.75, 0.05, c + dir * 0.75, 0.45]]
+      const N = 8
+      for (let i = 0; i < N; i++) {
+        // curve from the side down to the point
+        const u0 = i / N
+        const u1 = (i + 1) / N
+        const x = (u: number) => c + dir * 0.75 * (1 - u) ** 1.4
+        const y = (u: number) => 0.45 + 0.52 * Math.sin((u * Math.PI) / 2)
+        segs.push([x(u0), y(u0), x(u1), y(u1)])
+      }
+      return segs
+    }
+    return [[c - 0.75, 0.05, c + 0.75, 0.05], ...side(-1), ...side(1), ...circle(c, 0.42, 0.2, 14), [c - 0.4, 0.2, c + 0.4, 0.2], [c - 0.4, 0.64, c + 0.4, 0.64]]
+  },
+  // A longsword, lying flat: pommel, grip, crossguard, and a pointed blade
+  // with a fuller down the middle.
+  (w) => {
+    const c = w / 2
+    return [
+      ...circle(c - 2.3, 0.5, 0.12, 10),
+      ...box(c - 2.18, 0.42, c - 1.65, 0.58),
+      ...box(c - 1.65, 0.12, c - 1.5, 0.88),
+      [c - 1.5, 0.38, c + 1.9, 0.38],
+      [c - 1.5, 0.62, c + 1.9, 0.62],
+      [c + 1.9, 0.38, c + 2.4, 0.5],
+      [c + 1.9, 0.62, c + 2.4, 0.5],
+      [c - 1.4, 0.5, c + 1.7, 0.5],
+    ]
+  },
   // A bottle opener: handle, ring head, and the lip that catches the cap.
   (w) => {
     const c = w / 2
